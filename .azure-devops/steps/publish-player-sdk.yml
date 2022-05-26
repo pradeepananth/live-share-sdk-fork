@@ -1,0 +1,30 @@
+parameters:
+  sdk_working_directory: "javascript/packages/teams-collaboration-youtube"
+  feed_id: "1a2b5430-eb75-40cf-8420-9e056e0cbb8a"
+
+steps:
+- task: npmAuthenticate@0
+  displayName: npm Authenticate
+  inputs:
+    workingFile: ${{ parameters.sdk_working_directory }}/.npmrc
+
+- task: Yarn@3
+  displayName: "Yarn Install"
+  inputs:
+    projectDirectory: ${{ parameters.sdk_working_directory }}
+
+- script: "yarn build"
+  workingDirectory: ${{ parameters.sdk_working_directory }}
+  displayName: "yarn build"
+
+- script: "yarn run test"
+  workingDirectory: ${{ parameters.sdk_working_directory }}
+  displayName: "yarn test"
+  enabled: false
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: ${{ parameters.sdk_working_directory }}
+    publishRegistry: 'useFeed'
+    publishFeed: ${{ parameters.feed_id }}

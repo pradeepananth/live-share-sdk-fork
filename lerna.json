@@ -1,11 +1,6 @@
 {
   "packages": [
-    "../../microsoft-teams-library-js/packages/teams-js",
-    "packages/*",
-    "samples/01.dice-roller",
-    "samples/02.react-video",
-    "samples/21.react-media-template",
-    "samples/22.react-agile-poker"
+    "packages/*"
   ],
   "version": "0.0.0"
 }

@@ -4,9 +4,9 @@
  */
 
 import { IRoleVerifier, UserMeetingRole } from '../interfaces';
-import { TeamsClientApi, TestTeamsClientApi } from './TestTeamsClientApi';
 import {  waitForResult } from './utils';
 import { RequestCache } from './RequestCache';
+import { TeamsLiveAPI } from './TeamsLiveAPI';
 
 const EXPONENTIAL_BACKOFF_SCHEDULE = [100, 200, 200, 400, 600];
 const CACHE_LIFETIME = 60 * 60 * 1000;
@@ -16,15 +16,14 @@ const CACHE_LIFETIME = 60 * 60 * 1000;
  * @hidden
  */
 export class RoleVerifier implements IRoleVerifier {
-    private _teamsClient?: TeamsClientApi;
     private readonly _registerRequestCache: RequestCache<UserMeetingRole[]> = new RequestCache(CACHE_LIFETIME);
     private readonly _getRequestCache: RequestCache<UserMeetingRole[]> = new RequestCache(CACHE_LIFETIME);
-
+    constructor(private readonly api: TeamsLiveAPI) { }
+    
     public async registerClientId(clientId: string): Promise<UserMeetingRole[]> {
         return this._registerRequestCache.cacheRequest(clientId, () => {
             return waitForResult(async () => {
-                const teamsClient = await this.getTeamsClient();
-                return await teamsClient.interactive.registerClientId(clientId);
+                return await this.api.registerClientId(clientId);
             }, (result) => {
                 return Array.isArray(result);
             }, () => {
@@ -40,8 +39,7 @@ export class RoleVerifier implements IRoleVerifier {
 
         return this._getRequestCache.cacheRequest(clientId, () => {
             return waitForResult(async () => {
-                const teamsClient = await this.getTeamsClient();
-                return await teamsClient.interactive.getClientRoles(clientId);
+                return await this.api.getClientRoles(clientId);
             }, (result) => {
                 return Array.isArray(result);
             }, () => {
@@ -68,17 +66,5 @@ export class RoleVerifier implements IRoleVerifier {
         }
 
         return true;
-    }
-
-    private async getTeamsClient(): Promise<TeamsClientApi> {
-        if (!this._teamsClient) {
-            if (window) {
-                this._teamsClient = (await import('@microsoft/teams-js') as any) as TeamsClientApi;
-            } else {
-                this._teamsClient = new TestTeamsClientApi();
-            }
-        }
-
-        return this._teamsClient;
     }
 }

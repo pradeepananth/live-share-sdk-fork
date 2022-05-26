@@ -1,0 +1,30 @@
+parameters:
+  working_directory: "javascript/samples/youtube-react"
+  feed_id: "1a2b5430-eb75-40cf-8420-9e056e0cbb8a"
+
+steps:
+- task: npmAuthenticate@0
+  displayName: npm Authenticate
+  inputs:
+    workingFile: ${{ parameters.working_directory }}/.npmrc
+
+- task: Yarn@3
+  displayName: "Yarn Install"
+  inputs:
+    projectDirectory: ${{ parameters.working_directory }}
+
+- script: "yarn build:publish"
+  workingDirectory: ${{ parameters.working_directory }}
+  displayName: "yarn build:publish"
+
+- script: "yarn run test"
+  workingDirectory: ${{ parameters.working_directory }}
+  displayName: "yarn test"
+  enabled: false
+
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    workingDir: ${{ parameters.working_directory }}
+    publishRegistry: 'useFeed'
+    publishFeed: ${{ parameters.feed_id }}

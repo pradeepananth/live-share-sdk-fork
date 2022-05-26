@@ -3,6 +3,7 @@
  * Licensed under the Microsoft Live Share SDK License.
  */
 
+import { TeamsLiveAPI } from './TeamsLiveAPI';
 import { ITimestampProvider } from "../interfaces";
 import { TeamsClientApi, TestTeamsClientApi } from "./TestTeamsClientApi";
 
@@ -29,6 +30,7 @@ interface IServerTimeOffset {
     private _retries = 0;
     private _lastTimeSent = 0;
 
+    constructor(private readonly api: TeamsLiveAPI) { }
     /**
      * Returns true if the clock has been started.
      */
@@ -100,11 +102,10 @@ interface IServerTimeOffset {
     }
 
     private async getSessionTimeOffset(): Promise<IServerTimeOffset> {
-        const teamsClient = await this.getTeamsClient();
 
         // Get time from server and measure request time
         const startCall = performance.now();
-        const serverTime = await teamsClient.interactive.getNtpTime();
+        const serverTime = await this.api.getNtpTime();
         const endCall = performance.now();
         const now = new Date().getTime();
 
@@ -119,17 +120,5 @@ interface IServerTimeOffset {
             requestLatency: requestLatency,
             offset: serverTimeInUtc - now
         };
-    }
-
-    private async getTeamsClient(): Promise<TeamsClientApi> {
-        if (!this._teamsClient) {
-            if (window) {
-                this._teamsClient = (await import('@microsoft/teams-js') as any) as TeamsClientApi;
-            } else {
-                this._teamsClient = new TestTeamsClientApi();
-            }
-        }
-
-        return this._teamsClient;
     }
 }
