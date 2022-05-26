@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { UserMeetingRole, IRolesService } from '../interfaces';
+import { UserMeetingRole } from '../interfaces';
 import * as microsoftTeams from '@microsoft/teams-js';
 import fetch from "cross-fetch";
 import { ITokenPayload, ICollabSpaceInfo, IRegisteredUsersRoles, IVerifiedUserRoles, ITokenResponse } from './contracts';
@@ -55,7 +55,7 @@ export interface IFluidTenantInfo {
     storageEndpoint: string;
 }
 
-export class TeamsLiveAPI implements IRolesService {
+export class TeamsLiveAPI {
     private readonly _apiHost: string;
     private readonly _isTesting: boolean;
     private _authToken?: string;
