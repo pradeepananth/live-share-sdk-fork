@@ -57,6 +57,11 @@ extends:
           workingDirectory: ${{ variables.sdk_packages_directory }}
           displayName: "setup environment"
 
+        - task: npmAuthenticate@0
+          displayName: npm Authenticate
+          inputs:
+            workingFile: ${{ variables.sdk_packages_directory }}/.npmrc
+
         - script: "npm install --no-audit --legacy-peer-deps"
           workingDirectory: ""
           displayName: "npm install"
@@ -64,11 +69,6 @@ extends:
         - script: "npm run build"
           workingDirectory: ""
           displayName: "npm run build"
-
-        - task: npmAuthenticate@0
-          displayName: npm Authenticate
-          inputs:
-            workingFile: ${{ variables.sdk_packages_directory }}/.npmrc
 
         - task: Npm@1
           inputs:
